@@ -20,3 +20,4 @@ your actual UI code and are notified each time a new journey action is dispatche
 * Divide your code in hierarchical journey action handlers to ease navigation calls: <br>
 You can add an journey action handler which handles app navigation events in a parent widget and add
 more journey action handlers in its child widgets which handel child widget specific actions.
+

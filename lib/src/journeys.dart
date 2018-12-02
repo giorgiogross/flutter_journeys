@@ -81,6 +81,8 @@ class JourneyActionsHandler {
 
   JourneyActionsHandler({@required this.onJourneyAction, this.onError, this.onDone});
 
+  JourneyActionsHandler._withNoHandler({this.onError, this.onDone});
+
   /// Adds the handler as a listener to journey action updates.
   ///
   /// Your [onJourneyAction] callback will be called each time there is a new journey action
@@ -102,4 +104,46 @@ class JourneyActionsHandler {
     subscription?.cancel();
     subscription = null;
   }
+}
+
+
+class TypedJourneyActionsHandler extends JourneyActionsHandler {
+  var _typedActionHandlers = List<_TypedJourneyActionHandler>();
+
+  TypedJourneyActionsHandler({onError, onDone}) : super._withNoHandler(onError: onError, onDone: onDone) {
+    // point the action handler to our [typedOnJourneyAction]
+    onJourneyAction = _typedOnJourneyAction;
+  }
+
+  /// Adds a new journey action handler which will get called if the dispatched journey action is
+  /// of type [ActionType]
+  TypedJourneyActionsHandler addHandler<ActionType>(void Function(ActionType) f) {
+    _typedActionHandlers.add(_TypedJourneyActionHandler<ActionType>(f));
+    return this;
+  }
+
+  /// Calls all [journeyActionHandlers] and passes the [journeyAction].
+  ///
+  /// The calls will only result in an actual journey handler call if there is one which can handle
+  /// the type of the journey action.
+  /// If there are multiple then all of them get called. It is not safe to make assuptions about the
+  /// order in which they are called.
+  void _typedOnJourneyAction (JourneyAction journeyAction) {
+    for(var typedActionHandler in _typedActionHandlers) {
+      typedActionHandler(journeyAction);
+    }
+  }
+
+}
+
+class _TypedJourneyActionHandler<ActionType> {
+  final void Function(ActionType) handlerFunction;
+
+  _TypedJourneyActionHandler(this.handlerFunction);
+
+  void call(dynamic action) {
+    if(action is ActionType) handlerFunction(action);
+
+  }
+
 }

@@ -31,7 +31,8 @@ class MyAppState extends State<MyApp> {
         ),
         routes: <String, WidgetBuilder>{
           '/': (BuildContext context) => Screen1(),
-          '/screen2': (BuildContext context) => Screen2()
+          '/screen2': (BuildContext context) => Screen2(),
+          '/screen3': (BuildContext context) => Screen3()
         },
       ),
     );
@@ -55,6 +56,11 @@ class Screen1State extends State<Screen1> {
       Navigator.of(context).pushNamed('/screen2');
       print('Navigated to screen 2 and got payload data ${journeyAction.somePayloadData}');
     }
+
+    if (journeyAction is NavigateToScreen3Action) {
+      Navigator.of(context).pushNamed('/screen3');
+      print('Navigated to screen 3');
+    }
   }
 
   @override
@@ -73,6 +79,12 @@ class Screen1State extends State<Screen1> {
                 JourneyDispatcher.of(context).dispatch(NavigateToScreen2Action(123));
               },
               child: Text("Go to Screen 2"),
+            ),
+            RaisedButton(
+              onPressed: () {
+                JourneyDispatcher.of(context).dispatch(NavigateToScreen3Action());
+              },
+              child: Text("Go to Screen 3"),
             )
           ],
         ),
@@ -190,6 +202,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
   @override
   void dispose() {
     journeyHandler.unsubscribeFromJourneyActions();
+    animationController.dispose();
     super.dispose();
   }
 }
@@ -222,6 +235,65 @@ class Splasher extends StatelessWidget {
   }
 }
 
+class Screen3 extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => Screen3State();
+}
+
+/// Example for how to use TypedJourneyActionsHandler
+class Screen3State extends State<Screen3> {
+  TypedJourneyActionsHandler journeyHandler;
+
+  Screen3State() {
+    // init the handler and add all journey action handlers
+    journeyHandler = TypedJourneyActionsHandler()
+      ..addHandler<NavigateToScreen1Action>(onNavigateBack);
+  }
+
+  /// Navigates back to Screen1.
+  ///
+  /// Called directly when a NavigateToScreen1Action is dispatched.
+  void onNavigateBack(NavigateToScreen1Action action) {
+    print('Navigating back and received payload ${action.somePayloadData}');
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Screen 3"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            RaisedButton(
+              onPressed: () {
+                JourneyDispatcher.of(context).dispatch(NavigateToScreen1Action(333));
+              },
+              child: Text("Go back to Screen 1"),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    journeyHandler.subscribeToJourneyActions(JourneyDispatcher.of(context));
+  }
+
+  @override
+  void dispose() {
+    journeyHandler.unsubscribeFromJourneyActions();
+    super.dispose();
+  }
+}
+
 class NavigateToScreen1Action extends JourneyAction {
   final int somePayloadData;
 
@@ -233,5 +305,7 @@ class NavigateToScreen2Action extends JourneyAction {
 
   NavigateToScreen2Action(this.somePayloadData);
 }
+
+class NavigateToScreen3Action extends JourneyAction {}
 
 class AnimateSplasher extends JourneyAction {}
