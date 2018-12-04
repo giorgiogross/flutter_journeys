@@ -1,11 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-/// Journey action which is delivered to the callback provided in [JourneyActionsHandler].
-///
-/// Extend this class to provide your own journeys and to add instance fields to it.
-abstract class JourneyAction {}
-
 /// Root widget to activate [Journeys] in your app.
 ///
 /// Place this at the root of your widget tree, even before you add your first [Navigator]
@@ -20,7 +15,7 @@ class Journeys extends StatefulWidget {
 
 /// Maintains the journeys state.
 class _JourneysState extends State<Journeys> {
-  StreamController<JourneyAction> _controller;
+  StreamController<dynamic> _controller;
   bool hasActiveSubscribers = false;
 
   void enableJourneyStreamUpdates() {
@@ -34,7 +29,7 @@ class _JourneysState extends State<Journeys> {
   @override
   void initState() {
     super.initState();
-    _controller = StreamController<JourneyAction>.broadcast(
+    _controller = StreamController<dynamic>.broadcast(
         onListen: enableJourneyStreamUpdates, onCancel: disableJourneyStreamUpdates);
   }
 
@@ -57,8 +52,8 @@ class JourneyDispatcher extends InheritedWidget {
 
   JourneyDispatcher(this._journeys, {Key key, @required child}) : super(key: key, child: child);
 
-  void dispatch(JourneyAction journey) {
-    if (_journeys.hasActiveSubscribers) _journeys._controller.add(journey);
+  void dispatch(dynamic journeyAction) {
+    if (_journeys.hasActiveSubscribers) _journeys._controller.add(journeyAction);
   }
 
   @override
@@ -74,8 +69,8 @@ class JourneyDispatcher extends InheritedWidget {
 /// journey actions. Then call [subscribeToJourneyActions] in its [didChangeDependencies] method
 /// and call [unsubscribeFromJourneyActions] in its [dispose] method.
 class JourneyActionsHandler {
-  StreamSubscription<JourneyAction> subscription;
-  void Function(JourneyAction) onJourneyAction;
+  StreamSubscription<dynamic> subscription;
+  void Function(dynamic) onJourneyAction;
   void Function() onDone;
   void Function(dynamic, StackTrace) onError;
 
@@ -128,7 +123,7 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
   /// the type of the journey action.
   /// If there are multiple then all of them get called. It is not safe to make assuptions about the
   /// order in which they are called.
-  void _typedOnJourneyAction (JourneyAction journeyAction) {
+  void _typedOnJourneyAction (journeyAction) {
     for(var typedActionHandler in _typedActionHandlers) {
       typedActionHandler(journeyAction);
     }
@@ -141,8 +136,8 @@ class _TypedJourneyActionHandler<ActionType> {
 
   _TypedJourneyActionHandler(this.handlerFunction);
 
-  void call(dynamic action) {
-    if(action is ActionType) handlerFunction(action);
+  void call(dynamic journeyAction) {
+    if(journeyAction is ActionType) handlerFunction(journeyAction);
 
   }
 

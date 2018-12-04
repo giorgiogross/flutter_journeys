@@ -51,7 +51,7 @@ class Screen1State extends State<Screen1> {
     journeyHandler = JourneyActionsHandler(onJourneyAction: onJourneyAction);
   }
 
-  void onJourneyAction(JourneyAction journeyAction) {
+  void onJourneyAction(journeyAction) {
     if (journeyAction is NavigateToScreen2Action) {
       Navigator.of(context).pushNamed('/screen2');
       print('Navigated to screen 2 and got payload data ${journeyAction.somePayloadData}');
@@ -119,6 +119,10 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
 
   Screen2State() {
     journeyHandler = JourneyActionsHandler(onJourneyAction: onJourneyAction);
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
 
     // show a splash animation after 2 seconds
     Future.delayed(const Duration(seconds: 1), () async {
@@ -136,7 +140,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
     });
   }
 
-  void onJourneyAction(JourneyAction journeyAction) {
+  void onJourneyAction(journeyAction) {
     if (journeyAction is NavigateToScreen1Action) {
       Navigator.of(context).pop();
       print('Navigated back to screen 1 and got payload data ${journeyAction.somePayloadData}');
@@ -145,10 +149,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
     if (journeyAction is AnimateSplasher) {
       print('Starting the splash animation!');
 
-      animationController = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 1400),
-      )..addListener(
+      animationController..addListener(
             () {
           setState(() {
             animationRadius = lerpDouble(
@@ -159,9 +160,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
             animationOpacity = 1.0 - animationController.value;
           });
         },
-      );
-
-      animationController.forward(from: 0.0);
+      )..forward(from: 0.0);
     }
   }
 
@@ -207,6 +206,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
   }
 }
 
+/// A widget which animates a splash animation, just like a stone falling into water does.
 class Splasher extends StatelessWidget {
   final double radius;
   final double opacity;
@@ -252,7 +252,8 @@ class Screen3State extends State<Screen3> {
 
   /// Navigates back to Screen1.
   ///
-  /// Called directly when a NavigateToScreen1Action is dispatched.
+  /// Called directly when a NavigateToScreen1Action is dispatched. [action] is of type
+  /// NavigateToScreen1Action as we added this handler function specifically for that type.
   void onNavigateBack(NavigateToScreen1Action action) {
     print('Navigating back and received payload ${action.somePayloadData}');
     Navigator.of(context).pop();
@@ -294,18 +295,18 @@ class Screen3State extends State<Screen3> {
   }
 }
 
-class NavigateToScreen1Action extends JourneyAction {
+class NavigateToScreen1Action {
   final int somePayloadData;
 
   NavigateToScreen1Action(this.somePayloadData);
 }
 
-class NavigateToScreen2Action extends JourneyAction {
+class NavigateToScreen2Action {
   final int somePayloadData;
 
   NavigateToScreen2Action(this.somePayloadData);
 }
 
-class NavigateToScreen3Action extends JourneyAction {}
+class NavigateToScreen3Action {}
 
-class AnimateSplasher extends JourneyAction {}
+class AnimateSplasher{}
