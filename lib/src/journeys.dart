@@ -112,9 +112,8 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
 
   /// Adds a new journey action handler which will get called if the dispatched journey action is
   /// of type [ActionType]
-  TypedJourneyActionsHandler addHandler<ActionType>(void Function(ActionType) f) {
+  void addHandler<ActionType>(void Function(ActionType) f) {
     _typedActionHandlers.add(_TypedJourneyActionHandler<ActionType>(f));
-    return this;
   }
 
   /// Calls all [journeyActionHandlers] and passes the [journeyAction].
