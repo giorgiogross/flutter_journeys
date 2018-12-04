@@ -76,13 +76,13 @@ class Screen1State extends State<Screen1> {
           children: <Widget>[
             RaisedButton(
               onPressed: () {
-                JourneyDispatcher.of(context).dispatch(NavigateToScreen2Action(123));
+                Journeys.of(context).dispatch(NavigateToScreen2Action(123));
               },
               child: Text("Go to Screen 2"),
             ),
             RaisedButton(
               onPressed: () {
-                JourneyDispatcher.of(context).dispatch(NavigateToScreen3Action());
+                Journeys.of(context).dispatch(NavigateToScreen3Action());
               },
               child: Text("Go to Screen 3"),
             )
@@ -95,7 +95,7 @@ class Screen1State extends State<Screen1> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    journeyHandler.subscribeToJourneyActions(JourneyDispatcher.of(context));
+    journeyHandler.subscribeToJourneyActions(context);
   }
 
   @override
@@ -135,7 +135,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
         // of distributing the journey action properly. As long as there is a widget which is
         // interested in the journey action its handler will get called.
         // This helps you to decouple your UI code from your logic code.
-        JourneyDispatcher.of(context).dispatch(AnimateSplasher());
+        Journeys.of(context).dispatch(AnimateSplasher());
       }
     });
   }
@@ -182,7 +182,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
               onPressed: () {
                 // this will be processed by all action handlers which are currently subscribed
                 // and have a proper implementation to handle [NavigateToScreen1Action]s
-                JourneyDispatcher.of(context).dispatch(NavigateToScreen1Action(456));
+                Journeys.of(context).dispatch(NavigateToScreen1Action(456));
               },
               child: Text("Back to Screen 1"),
             )
@@ -195,7 +195,7 @@ class Screen2State extends State<Screen2> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    journeyHandler.subscribeToJourneyActions(JourneyDispatcher.of(context));
+    journeyHandler.subscribeToJourneyActions(context);
   }
 
   @override
@@ -272,7 +272,7 @@ class Screen3State extends State<Screen3> {
           children: <Widget>[
             RaisedButton(
               onPressed: () {
-                JourneyDispatcher.of(context).dispatch(NavigateToScreen1Action(333));
+                Journeys.of(context).dispatch(NavigateToScreen1Action(333));
               },
               child: Text("Go back to Screen 1"),
             )
@@ -285,7 +285,7 @@ class Screen3State extends State<Screen3> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    journeyHandler.subscribeToJourneyActions(JourneyDispatcher.of(context));
+    journeyHandler.subscribeToJourneyActions(context);
   }
 
   @override

@@ -10,11 +10,36 @@ class Journeys extends StatefulWidget {
   const Journeys({Key key, @required this.child}) : assert(child != null);
 
   @override
-  State<StatefulWidget> createState() => _JourneysState();
+  State<StatefulWidget> createState() => JourneysState();
+
+  /// The state from the closest instance of this class that encloses the given context.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// Journeys.of(context)
+  ///   ..dispatch(YourJourneyAction());
+  /// ```
+  static JourneysState of(
+    BuildContext context, {
+    bool nullOk = false,
+  }) {
+    final JourneysState journey = context.ancestorStateOfType(const TypeMatcher<JourneysState>());
+    assert(() {
+      if (journey == null && !nullOk) {
+        throw FlutterError(
+            'Navigator operation requested with a context that does not include a Navigator.\n'
+            'The context used to push or pop routes from the Navigator must be that of a '
+            'widget that is a descendant of a Navigator widget.');
+      }
+      return true;
+    }());
+    return journey;
+  }
 }
 
 /// Maintains the journeys state.
-class _JourneysState extends State<Journeys> {
+class JourneysState extends State<Journeys> {
   StreamController<dynamic> _controller;
   bool hasActiveSubscribers = false;
 
@@ -34,33 +59,17 @@ class _JourneysState extends State<Journeys> {
   }
 
   @override
-  Widget build(BuildContext context) => JourneyDispatcher(
-        this,
-        child: widget.child,
-      );
+  Widget build(BuildContext context) => widget.child;
 
   @override
   void dispose() {
     _controller.close();
     super.dispose();
   }
-}
-
-/// Maintains the [_JourneysState] and makes it accessible to [JourneyActionHandler].
-class JourneyDispatcher extends InheritedWidget {
-  final _JourneysState _journeys;
-
-  JourneyDispatcher(this._journeys, {Key key, @required child}) : super(key: key, child: child);
 
   void dispatch(dynamic journeyAction) {
-    if (_journeys.hasActiveSubscribers) _journeys._controller.add(journeyAction);
+    if (hasActiveSubscribers) _controller.add(journeyAction);
   }
-
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) => false;
-
-  static JourneyDispatcher of(BuildContext context) =>
-      context.inheritFromWidgetOfExactType(JourneyDispatcher);
 }
 
 /// Handles new journey actions.
@@ -82,13 +91,19 @@ class JourneyActionsHandler {
   ///
   /// Your [onJourneyAction] callback will be called each time there is a new journey action
   /// available. Call this during [didChangeDependencies] and pass the [JourneyDispatcher] from your
-  /// widget tree as [journeyDispatcher].
-  void subscribeToJourneyActions(JourneyDispatcher journeyDispatcher) {
-    assert(journeyDispatcher != null);
+  /// widget tree as [journeysState].
+  void subscribeToJourneyActions(BuildContext context) {
+    assert(context != null,
+        'The provided BuildContext is null. Make sure you call this method with a valid build context, e.g. in didChangeDependecies()');
+
+    final journeysState = Journeys.of(context);
+
+    assert(journeysState != null,
+        'Journeys widget was not found. Make sure Journeys is an ancestor of the component from where you are calling this method.');
     if (subscription != null) return;
 
-    subscription = journeyDispatcher._journeys._controller.stream
-        .listen(onJourneyAction, onError: onError, onDone: onDone);
+    subscription =
+        journeysState._controller.stream.listen(onJourneyAction, onError: onError, onDone: onDone);
   }
 
   /// Removes the handler from the journey actions listeners.
@@ -101,11 +116,11 @@ class JourneyActionsHandler {
   }
 }
 
-
 class TypedJourneyActionsHandler extends JourneyActionsHandler {
   var _typedActionHandlers = List<_TypedJourneyActionHandler>();
 
-  TypedJourneyActionsHandler({onError, onDone}) : super._withNoHandler(onError: onError, onDone: onDone) {
+  TypedJourneyActionsHandler({onError, onDone})
+      : super._withNoHandler(onError: onError, onDone: onDone) {
     // point the action handler to our [typedOnJourneyAction]
     onJourneyAction = _typedOnJourneyAction;
   }
@@ -122,12 +137,11 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
   /// the type of the journey action.
   /// If there are multiple then all of them get called. It is not safe to make assuptions about the
   /// order in which they are called.
-  void _typedOnJourneyAction (journeyAction) {
-    for(var typedActionHandler in _typedActionHandlers) {
+  void _typedOnJourneyAction(journeyAction) {
+    for (var typedActionHandler in _typedActionHandlers) {
       typedActionHandler(journeyAction);
     }
   }
-
 }
 
 class _TypedJourneyActionHandler<ActionType> {
@@ -136,8 +150,6 @@ class _TypedJourneyActionHandler<ActionType> {
   _TypedJourneyActionHandler(this.handlerFunction);
 
   void call(dynamic journeyAction) {
-    if(journeyAction is ActionType) handlerFunction(journeyAction);
-
+    if (journeyAction is ActionType) handlerFunction(journeyAction);
   }
-
 }
