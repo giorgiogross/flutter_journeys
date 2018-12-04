@@ -32,7 +32,8 @@ class MyAppState extends State<MyApp> {
         routes: <String, WidgetBuilder>{
           '/': (BuildContext context) => Screen1(),
           '/screen2': (BuildContext context) => Screen2(),
-          '/screen3': (BuildContext context) => Screen3()
+          '/screen3': (BuildContext context) => Screen3(),
+          '/screen4': (BuildContext context) => Screen4()
         },
       ),
     );
@@ -61,6 +62,11 @@ class Screen1State extends State<Screen1> {
       Navigator.of(context).pushNamed('/screen3');
       print('Navigated to screen 3');
     }
+
+    if (journeyAction is NavigateToScreen4Action) {
+      Navigator.of(context).pushNamed('/screen4');
+      print('Navigated to screen 3');
+    }
   }
 
   @override
@@ -85,6 +91,12 @@ class Screen1State extends State<Screen1> {
                 Journeys.of(context).dispatch(NavigateToScreen3Action());
               },
               child: Text("Go to Screen 3"),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Journeys.of(context).dispatch(NavigateToScreen4Action());
+              },
+              child: Text("Go to Screen 4"),
             )
           ],
         ),
@@ -295,6 +307,64 @@ class Screen3State extends State<Screen3> {
   }
 }
 
+class Screen4 extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => Screen4State();
+}
+
+/// Example for how to use TypedJourneyActionsHandlerMixin
+class Screen4State extends State<Screen4> with TypedJourneyActionsHandlerMixin<Screen4> {
+
+  Screen4State() {
+    // add all journey action handlers
+    addHandler<NavigateToScreen1Action>(onNavigateBack);
+  }
+
+  /// Navigates back to Screen1.
+  ///
+  /// Called directly when a NavigateToScreen1Action is dispatched. [action] is of type
+  /// NavigateToScreen1Action as we added this handler function specifically for that type.
+  void onNavigateBack(NavigateToScreen1Action action) {
+    print('Navigating back and received payload ${action.somePayloadData}');
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Screen 4"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            RaisedButton(
+              onPressed: () {
+                Journeys.of(context).dispatch(NavigateToScreen1Action(897));
+              },
+              child: Text("Go back to Screen 1"),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print("called main didChangeDependencies");
+  }
+
+  @override
+  void dispose() {
+    print("called main dispose");
+    super.dispose();
+  }
+}
+
 class NavigateToScreen1Action {
   final int somePayloadData;
 
@@ -308,5 +378,7 @@ class NavigateToScreen2Action {
 }
 
 class NavigateToScreen3Action {}
+
+class NavigateToScreen4Action {}
 
 class AnimateSplasher{}

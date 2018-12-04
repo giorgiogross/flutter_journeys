@@ -144,6 +144,40 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
   }
 }
 
+abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends State<T> {
+  var typedJourneyActionsHandler = TypedJourneyActionsHandler();
+
+  void setOnErrorJourneyHandler(void Function(dynamic, StackTrace) onError) {
+    typedJourneyActionsHandler.onError = onError;
+  }
+
+  void setOnDoneJourneyHandler(void Function() onDone) {
+    typedJourneyActionsHandler.onDone = onDone;
+  }
+
+  /// Adds a new journey action handler which will get called if the dispatched journey action is
+  /// of type [ActionType]
+  void addHandler<ActionType>(void Function(ActionType) f) {
+    typedJourneyActionsHandler.addHandler(f);
+  }
+
+  @override
+  @mustCallSuper
+  void didChangeDependencies() {
+    print("called mixin didChangeDependencies");
+    super.didChangeDependencies();
+    typedJourneyActionsHandler.subscribeToJourneyActions(context);
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    print("called mixin dispose");
+    typedJourneyActionsHandler.unsubscribeFromJourneyActions();
+    super.dispose();
+  }
+}
+
 class _TypedJourneyActionHandler<ActionType> {
   final void Function(ActionType) handlerFunction;
 
