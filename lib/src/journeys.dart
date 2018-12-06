@@ -28,9 +28,9 @@ class Journeys extends StatefulWidget {
     assert(() {
       if (journey == null && !nullOk) {
         throw FlutterError(
-            'Navigator operation requested with a context that does not include a Navigator.\n'
-            'The context used to push or pop routes from the Navigator must be that of a '
-            'widget that is a descendant of a Navigator widget.');
+            'Journeys operation requested with a context that does not include a Journeys widget.\n'
+            'The context used to dispatch journey actions must be that of a widget that is a '
+            'descendant of a Journeys widget.');
       }
       return true;
     }());
@@ -155,9 +155,9 @@ abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends
     typedJourneyActionsHandler.onDone = onDone;
   }
 
-  /// Adds a new journey action handler which will get called if the dispatched journey action is
+  /// Adds a new journey action handler which will be called if the dispatched journey action is
   /// of type [ActionType]
-  void addHandler<ActionType>(void Function(ActionType) f) {
+  void addJourneyActionHandler<ActionType>(void Function(ActionType) f) {
     typedJourneyActionsHandler.addHandler(f);
   }
 

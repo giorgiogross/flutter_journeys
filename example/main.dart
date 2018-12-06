@@ -317,7 +317,7 @@ class Screen4State extends State<Screen4> with TypedJourneyActionsHandlerMixin<S
 
   Screen4State() {
     // add all journey action handlers
-    addHandler<NavigateToScreen1Action>(onNavigateBack);
+    addJourneyActionHandler<NavigateToScreen1Action>(onNavigateBack);
   }
 
   /// Navigates back to Screen1.
