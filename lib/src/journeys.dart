@@ -147,11 +147,11 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
 abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends State<T> {
   var typedJourneyActionsHandler = TypedJourneyActionsHandler();
 
-  void setOnErrorJourneyHandler(void Function(dynamic, StackTrace) onError) {
+  set onErrorJourneyHandler(void Function(dynamic, StackTrace) onError) {
     typedJourneyActionsHandler.onError = onError;
   }
 
-  void setOnDoneJourneyHandler(void Function() onDone) {
+  set onDoneJourneyHandler(void Function() onDone) {
     typedJourneyActionsHandler.onDone = onDone;
   }
 
@@ -164,7 +164,6 @@ abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends
   @override
   @mustCallSuper
   void didChangeDependencies() {
-    print("called mixin didChangeDependencies");
     super.didChangeDependencies();
     typedJourneyActionsHandler.subscribeToJourneyActions(context);
   }
@@ -172,7 +171,6 @@ abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends
   @override
   @mustCallSuper
   void dispose() {
-    print("called mixin dispose");
     typedJourneyActionsHandler.unsubscribeFromJourneyActions();
     super.dispose();
   }
