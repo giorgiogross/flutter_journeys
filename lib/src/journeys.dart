@@ -144,7 +144,13 @@ class TypedJourneyActionsHandler extends JourneyActionsHandler {
   }
 }
 
-abstract class TypedJourneyActionsHandlerMixin<T extends StatefulWidget> extends State<T> {
+/// Eases the use of journeys by providing a mixin with convenience functions.
+///
+/// Journeys can be registered in the subclass constructor by calling [addJourneyActionHandler].
+/// All handlers will become active as soon as the subclass (widget) is rendered the first time
+/// and will be inactive as soon as the subclass (widget) is disposed. This means it is safe to use
+/// the build context in all journey handlers.
+mixin TypedJourneyActionsHandlerMixin<T extends StatefulWidget> on State<T> {
   var typedJourneyActionsHandler = TypedJourneyActionsHandler();
 
   set onErrorJourneyHandler(void Function(dynamic, StackTrace) onError) {

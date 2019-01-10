@@ -19,5 +19,7 @@ All logic is implemented in your journey action handlers. These journey handlers
 your actual UI code and are notified each time a new journey action is dispatched
 * Divide your code in hierarchical journey action handlers to ease navigation calls: <br>
 You can add an journey action handler which handles app navigation events in a parent widget and add
-more journey action handlers in its child widgets which handel child widget specific actions.
+more journey action handlers in its child widgets which handle child widget specific actions.
+* Aside of hierarchical ordering you can declare certain behaviour separately for each screen or 
+behaviour only available while a widget is mounted.
 
