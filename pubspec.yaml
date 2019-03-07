@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  mockito: "^3.0.0"
-  meta: "^1.1.2"
+  mockito: "^4.0.0"
+  meta: "^1.1.6"
 
 dev_dependencies:
   flutter_test:
