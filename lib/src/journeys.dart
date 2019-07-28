@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 class Journeys extends StatefulWidget {
   final Widget child;
 
-  const Journeys({Key key, @required this.child}) : assert(child != null);
+  const Journeys({Key key, @required this.child})
+      : assert(child != null),
+        super(key: key);
 
   @override
   State<StatefulWidget> createState() => JourneysState();
